@@ -1,0 +1,23 @@
+settings:
+  token_env: TOKEN
+  long_poller:
+
+results:
+  search_video:
+    type: article
+    id: '{{ .Id.VideoId }}'
+    title: '{{ unhtml .Snippet.Title | esc }}'
+    description: |-
+      👤 {{ unhtml .Snippet.ChannelTitle | esc }} • {{ timeago .Snippet.PublishedAt }}
+      👁 {{ ntos .Statistics.ViewCount }} • 🕓 {{ fmtduryt .Details.Duration }}
+    thumb_url: '{{ .Snippet.Thumbnails.Medium.Url }}'
+    message_text: 'https://youtu.be/{{ .Id.VideoId }}'
+  search_channel:
+    type: article
+    id: '{{ .Id.ChannelId }}'
+    title: '{{ unhtml .Snippet.Title | esc }}'
+    description: '👤 {{ ntos .Channel.SubscriberCount }} • {{ .Channel.VideoCount }} видео'
+    url: 'https://youtube.com/channel/{{ .Id.ChannelId }}'
+    hide_url: true
+    thumb_url: '{{ .Snippet.Thumbnails.Medium.Url }}'
+    message_text: 'https://youtube.com/channel/{{ .Id.ChannelId }}'
