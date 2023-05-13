@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"go.massbots.xyz/findyoutube/youtube"
 	tele "gopkg.in/telebot.v3"
@@ -25,12 +26,28 @@ func main() {
 		log.Fatal(err)
 	}
 
+	b.Use(lt.Middleware("ru"))
+
 	b.Handle("/start", func(c tele.Context) error {
-		return c.Send(lt.TextLocale("ru", "start"))
+		return c.Send(lt.Text(c, "start", c.Sender()))
+	})
+
+	b.Handle(tele.OnText, func(c tele.Context) error {
+		text := c.Text()
+
+		if strings.Count(text, "\n") > 1 ||
+			strings.Contains(text, "https://") {
+			return nil
+		}
+
+		return c.Send(
+			lt.Text(c, "query", text),
+			lt.Markup(c, "query", text),
+		)
 	})
 
 	b.Handle(tele.OnQuery, func(c tele.Context) error {
-		search, err := yt.Search(c.Text(), 10)
+		search, err := yt.Search(c.Data(), 10)
 		if err != nil {
 			return err
 		}
@@ -39,15 +56,15 @@ func main() {
 		for _, v := range search {
 			switch v.Id.Kind {
 			case "youtube#video":
-				r := lt.ResultLocale("ru", "search_video", v)
+				r := lt.Result(c, "search_video", v)
 				results = append(results, r)
 			case "youtube#channel":
-				r := lt.ResultLocale("ru", "search_channel", v)
+				r := lt.Result(c, "search_channel", v)
 				results = append(tele.Results{r}, results...)
 			}
 		}
 
-		return nil
+		return c.Answer(&tele.QueryResponse{Results: results})
 	})
 
 	b.Start()

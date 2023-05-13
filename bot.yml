@@ -1,6 +1,16 @@
 settings:
   token_env: TOKEN
+  parse_mode: html
   long_poller:
+
+buttons:
+  query:
+    text: 'Поиск'
+    switch_inline_query_current_chat: '{{ . }}'
+
+markups:
+  query:
+    - [ query ]
 
 results:
   search_video:
